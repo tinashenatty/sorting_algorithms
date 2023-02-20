@@ -1,61 +1,96 @@
 #include "sort.h"
 
 /**
- * len_list - returns the length of a linked list
- * @h: pointer to the list
+ * swap_left -swap two nodes right left position
+ * @list: list
+ *Return: NULL
  *
- * Return: length of list
- */
-int len_list(listint_t *h)
+ **/
+void swap_left(listint_t *list)
 {
-	int len = 0;
+	listint_t *tmp, *head;
 
-	while (h)
+	while (list->prev != NULL)
 	{
-		len++;
-		h = h->next;
+		if (list->n < list->prev->n)
+		{
+			tmp = list->prev->prev;
+			list->prev->next = list->next;
+			list->next = list->prev;
+			list->prev->prev = list;
+			list->prev = tmp;
+			list->next->next->prev = list->next;
+			if (tmp != NULL)
+				tmp->next = list;
+			head = list;
+			while (head->prev != NULL)
+				head = head->prev;
+			print_list(head);
+		}
+		else
+			list = list->prev;
 	}
-	return (len);
 }
 
 /**
- * insertion_sort_list - sorts a linked list with the Insert Sort algorithm
- * @list: double pointer to the list to sort
+ * swap_right -swap two nodes left rigth position
+ * @l: list
+ * Return: Null
+ **/
+void swap_right(listint_t *l)
+{
+	listint_t *tmp, *head;
+
+	tmp = l->prev;
+
+	if (tmp != NULL)
+	{
+		tmp->next = l->next;
+		l->next->prev = tmp;
+	}
+	else
+		l->next->prev = NULL;
+	l->prev = l->next;
+	if (l->next->next != NULL)
+	{
+		l->next = l->next->next;
+		l->prev->next = l;
+		l->next->prev = l;
+	}
+	else
+	{
+		l->next->next = l;
+		l->next = NULL;
+	}
+	head = l;
+	while (head->prev != NULL)
+		head = head->prev;
+	print_list(head);
+	swap_left(l->prev);
+}
+
+/**
+ * insertion_sort_list -sorts a doubly linked list in ascending order
+ * @list: list
+ * Return: NULL
  */
 void insertion_sort_list(listint_t **list)
 {
-	listint_t *curr = NULL, *one = NULL;
-	listint_t *two = NULL, *three = NULL, *four = NULL;
+	listint_t *l;
 
-	if (!list || !(*list) || len_list(*list) < 2)
+	if ((list == NULL) || (*list == NULL) || ((*list)->next == NULL))
 		return;
+	l = *list;
 
-	curr = *list;
-
-	while (curr)
+	while (l->next != NULL)
 	{
-		if (curr->prev && curr->n < curr->prev->n)
+		if (l->n > l->next->n)
 		{
-			one = curr->prev->prev;
-			two = curr->prev;
-			three = curr;
-			four = curr->next;
-
-			two->next = four;
-			if (four)
-				four->prev = two;
-			three->next = two;
-			three->prev = one;
-			if (one)
-				one->next = three;
-			else
-				*list = three;
-			two->prev = three;
-			curr = *list;
-			print_list(*list);
-			continue;
+			swap_right(l);
 		}
 		else
-			curr = curr->next;
+			l = l->next;
 	}
+	while ((*list)->prev != NULL)
+		*list = (*list)->prev;
 }
